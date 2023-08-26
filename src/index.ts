@@ -36,8 +36,18 @@ const main = defineCommand({
       type: "string",
       description: "要使用的构建预置（也可以使用 `NITRO_PRESET` 环境变量）。",
     },
+    port: {
+      type: "string",
+      default: "3000",
+      description: "服务端口",
+    },
   },
   async run({ args }) {
+    if (isNaN(Number(args.port))) {
+      throw new Error("服务端口号 port 必须是数字字符串");
+    }
+
+    process.env.PORT = args.port;
     const rootDir = resolve((args.dir || args._dir || ".") as string);
     const viteConfig = await Layers({
       extends: [rootDir],
