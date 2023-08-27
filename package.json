@@ -4,19 +4,12 @@
   "description": "前端静态服务，支持自动 api 代理",
   "type": "module",
   "main": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
   "bin": {
     "nitro-proxy": "./dist/index.mjs"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/markthree/nitro-proxy.git"
-  },
-  "exports": {
-    ".": {
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
-    }
   },
   "files": [
     "dist"
