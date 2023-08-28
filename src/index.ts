@@ -7,14 +7,9 @@ import {
   type NitroConfig,
   prepare,
 } from "nitropack";
-import { dirname, resolve } from "pathe";
+import { resolve } from "pathe";
 import { Layers } from "vite-layers";
 import type { UserConfig } from "vite-layers";
-import { fileURLToPath } from "node:url";
-import { copy } from "fast-cpy";
-import { existsSync } from "fs";
-
-const _dirname = dirname(fileURLToPath(import.meta.url));
 
 import { description, name, version } from "../package.json";
 import { commonArgs } from "./common";
@@ -64,16 +59,6 @@ const main = defineCommand({
           proxy: `${target}/**`,
         };
       }
-    }
-
-    /**
-     * 确保使用正确的 static 静态中间件
-     * 等待 https://github.com/unjs/nitro/pull/1639 合并
-     */
-    const runtime = resolve(_dirname, "runtime");
-    const hasRuntime = existsSync(runtime);
-    if (hasRuntime) {
-      await copy(runtime, rootDir);
     }
 
     const nitro = await createNitro({
