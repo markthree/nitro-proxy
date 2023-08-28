@@ -67,7 +67,7 @@ const main = defineCommand({
       minify: args.minify ?? true,
       preset: args.preset ?? "node-cluster",
       publicAssets: [{
-        dir: "./dist",
+        dir: viteConfig?.build?.outDir ?? "./dist",
         maxAge: 3600,
       }],
       routeRules,
