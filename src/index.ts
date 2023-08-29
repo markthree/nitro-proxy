@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { defineCommand, runMain } from "citty";
+import { existsSync } from "fs";
 import {
   build,
   copyPublicAssets,
@@ -9,10 +10,11 @@ import {
 } from "nitropack";
 import { resolve } from "pathe";
 import { Layers } from "vite-layers";
-import type { UserConfig } from "vite-layers";
 
 import { description, name, version } from "../package.json";
 import { commonArgs } from "./common";
+
+import type { UserConfig } from "vite-layers";
 
 const main = defineCommand({
   meta: {
@@ -48,6 +50,12 @@ const main = defineCommand({
       extends: [rootDir],
     }) as UserConfig;
 
+    const outDir = viteConfig?.build?.outDir ?? "./dist";
+
+    if (!existsSync(outDir)) {
+      throw new Error(`未找到 ${outDir} 请先进行 vite build`);
+    }
+
     const proxy = viteConfig.server?.proxy ?? {};
     const routeRules: NitroConfig["routeRules"] = {};
     for (const r in proxy) {
@@ -67,7 +75,7 @@ const main = defineCommand({
       minify: args.minify ?? true,
       preset: args.preset ?? "node-cluster",
       publicAssets: [{
-        dir: viteConfig?.build?.outDir ?? "./dist",
+        dir: outDir,
         maxAge: 3600,
       }],
       routeRules,
