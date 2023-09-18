@@ -79,9 +79,6 @@ const main = defineCommand({
         maxAge: 3600,
       }],
       routeRules,
-      experimental: {
-        asyncContext: true,
-      },
       sourceMap: false,
     });
     await prepare(nitro);
