@@ -5,7 +5,7 @@
   "type": "module",
   "main": "./dist/index.mjs",
   "bin": {
-    "nitro-proxy": "./dist/index.mjs"
+    "nitro-proxy": "dist/index.mjs"
   },
   "repository": {
     "type": "git",
