@@ -189,6 +189,7 @@ async function ensureViteBuild(rootDir: string, outDir: string) {
           const scriptValue = scripts[scriptKey] as string;
           if (scriptValue.includes("vite build")) {
             const pm = await detectPackageManager(rootDir) ?? { name: "npm" };
+            logger.info(`执行 ${pm.name} run ${scriptKey} → ${scriptValue}`);
             await execa(pm.name, ["run", scriptKey], {
               cwd: rootDir,
               stdin: "inherit",
