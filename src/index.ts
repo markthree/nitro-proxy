@@ -11,11 +11,14 @@ import {
 import { resolve } from "pathe";
 import { Layers } from "vite-layers";
 
-import { description, name, version } from "../package.json";
-import { commonArgs } from "./common";
 import { consola } from "consola";
 import { isString } from "m-type-tools";
+import { detectPackageManager } from "nypm";
+import { description, name, version } from "../package.json";
+import { commonArgs } from "./common";
 
+import { execa } from "execa";
+import { readdir, readFile } from "fs/promises";
 import type { UserConfig } from "vite-layers";
 
 const logger = consola.withTag("nitro-proxy");
@@ -53,9 +56,8 @@ const main = defineCommand({
     const rootDir = resolve((args.dir || args._dir || ".") as string);
     const { proxy, outDir } = await resolveViteConfig(rootDir);
 
-    if (!existsSync(outDir)) {
-      throw new Error(`未找到 ${outDir} 请先进行 vite build`);
-    }
+    // 确保 vite build
+    await ensureViteBuild(rootDir, outDir);
 
     // 生成代理路由
     const routeRules = createProxyRouteRules(proxy);
@@ -77,6 +79,8 @@ const main = defineCommand({
     await copyPublicAssets(nitro);
     await build(nitro);
     await nitro.close();
+
+    logger.success(`生成代理服务成功 → ${nitro.options.output}`);
   },
 });
 
@@ -144,4 +148,64 @@ function createProxyRouteRules(
     }
   }
   return routeRules;
+}
+
+/**
+ * 确保进行 vite build
+ */
+async function ensureViteBuild(rootDir: string, outDir: string) {
+  if (!existsSync(outDir) || (await readdir(outDir)).length === 0) {
+    logger.warn(`${outDir} 不存在，可能没有进行 vite build`);
+
+    const shouldAutoBuild = await logger.prompt("是否自动 vite build", {
+      type: "confirm",
+    });
+
+    if (!shouldAutoBuild) {
+      throw new Error(`请先进行 vite build`);
+    }
+
+    const packageJsonFile = resolve(rootDir, "package.json");
+    if (!existsSync(packageJsonFile)) {
+      logger.warn(`不存在 ${packageJsonFile}，开始执行 npx vite build`);
+      await npxVitBuild();
+      return;
+    }
+
+    try {
+      const packageJsonText = await readFile(packageJsonFile, {
+        encoding: "utf-8",
+      });
+      const scripts = JSON.parse(packageJsonText)["scripts"] || {};
+      if (!scripts) {
+        logger.warn(
+          `${packageJsonFile} 中不存在 scripts，开始执行 npx vite build`,
+        );
+        await npxVitBuild();
+      }
+
+      for (const k in scripts) {
+        if (Object.prototype.hasOwnProperty.call(scripts, k)) {
+          const script = scripts[k] as string;
+          if (script.includes("vite build")) {
+            const pm = await detectPackageManager(rootDir) ?? { name: "npm" };
+            await execa(pm.name, ["run", script], {
+              cwd: rootDir,
+            });
+            break;
+          }
+        }
+      }
+    } catch (error) {
+      logger.error(error);
+      logger.warn(`解析 ${packageJsonFile} 错误，开始执行 npx vite build`);
+      await npxVitBuild();
+    }
+  }
+
+  async function npxVitBuild() {
+    await execa("npx", ["vite", "build"], {
+      cwd: rootDir,
+    });
+  }
 }
