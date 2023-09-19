@@ -80,7 +80,7 @@ const main = defineCommand({
     await build(nitro);
     await nitro.close();
 
-    logger.success(`生成代理服务成功 → ${nitro.options.output}`);
+    logger.success(`生成代理服务成功 → ${nitro.options.output.dir}`);
   },
 });
 
@@ -184,13 +184,16 @@ async function ensureViteBuild(rootDir: string, outDir: string) {
         await npxVitBuild();
       }
 
-      for (const k in scripts) {
-        if (Object.prototype.hasOwnProperty.call(scripts, k)) {
-          const script = scripts[k] as string;
-          if (script.includes("vite build")) {
+      for (const scriptKey in scripts) {
+        if (Object.prototype.hasOwnProperty.call(scripts, scriptKey)) {
+          const scriptValue = scripts[scriptKey] as string;
+          if (scriptValue.includes("vite build")) {
             const pm = await detectPackageManager(rootDir) ?? { name: "npm" };
-            await execa(pm.name, ["run", script], {
+            await execa(pm.name, ["run", scriptKey], {
               cwd: rootDir,
+              stdin: "inherit",
+              stderr: "inherit",
+              stdout: "inherit",
             });
             break;
           }
@@ -198,7 +201,7 @@ async function ensureViteBuild(rootDir: string, outDir: string) {
       }
     } catch (error) {
       logger.error(error);
-      logger.warn(`解析 ${packageJsonFile} 错误，开始执行 npx vite build`);
+      logger.error(`解析 ${packageJsonFile} 错误，开始执行 npx vite build`);
       await npxVitBuild();
     }
   }
@@ -206,6 +209,9 @@ async function ensureViteBuild(rootDir: string, outDir: string) {
   async function npxVitBuild() {
     await execa("npx", ["vite", "build"], {
       cwd: rootDir,
+      stdin: "inherit",
+      stderr: "inherit",
+      stdout: "inherit",
     });
   }
 }
