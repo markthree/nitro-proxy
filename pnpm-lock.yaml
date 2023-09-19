@@ -8,6 +8,12 @@ dependencies:
   citty:
     specifier: ^0.1.4
     version: 0.1.4
+  consola:
+    specifier: ^3.2.3
+    version: 3.2.3
+  m-type-tools:
+    specifier: ^0.4.1
+    version: 0.4.1
   nitropack:
     specifier: ^2.6.3
     version: 2.6.3
@@ -2737,6 +2743,7 @@ packages:
     hasBin: true
     optionalDependencies:
       fsevents: 2.3.3
+    dev: true
 
   /rollup@3.29.2:
     resolution: {integrity: sha512-CJouHoZ27v6siztc21eEQGo0kIcE5D1gVPA571ez0mMYb25LGYGKnVNXpEj5MGlepmDWGXNjDB5q7uNiPHC11A==}
@@ -3273,7 +3280,7 @@ packages:
       '@types/node': 18.17.17
       esbuild: 0.18.20
       postcss: 8.4.28
-      rollup: 3.28.1
+      rollup: 3.29.2
     optionalDependencies:
       fsevents: 2.3.3
     dev: false

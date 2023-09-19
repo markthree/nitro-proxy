@@ -13,8 +13,14 @@ import { Layers } from "vite-layers";
 
 import { description, name, version } from "../package.json";
 import { commonArgs } from "./common";
+import { consola } from "consola";
+import { isString } from "m-type-tools";
 
 import type { UserConfig } from "vite-layers";
+
+const logger = consola.withTag("nitro-proxy");
+
+logger.wrapAll();
 
 const main = defineCommand({
   meta: {
@@ -40,35 +46,21 @@ const main = defineCommand({
     },
   },
   async run({ args }) {
-    if (isNaN(Number(args.port))) {
-      throw new Error("服务端口号 port 必须是数字字符串");
-    }
+    // 覆盖端口
+    overwritePort(args.port);
 
-    process.env.PORT = args.port;
+    // 解析 vite 配置
     const rootDir = resolve((args.dir || args._dir || ".") as string);
-    const viteConfig = await Layers({
-      extends: [rootDir],
-    }) as UserConfig;
-
-    const outDir = viteConfig?.build?.outDir ?? "./dist";
+    const { proxy, outDir } = await resolveViteConfig(rootDir);
 
     if (!existsSync(outDir)) {
       throw new Error(`未找到 ${outDir} 请先进行 vite build`);
     }
 
-    const proxy = viteConfig.server?.proxy ?? {};
-    const routeRules: NitroConfig["routeRules"] = {};
-    for (const r in proxy) {
-      if (Object.prototype.hasOwnProperty.call(proxy, r)) {
-        const meta = proxy[r];
-        const route = `${r}/**`;
-        const target = typeof meta === "string" ? meta : meta.target;
-        routeRules[route] = {
-          proxy: `${target}/**`,
-        };
-      }
-    }
+    // 生成代理路由
+    const routeRules = createProxyRouteRules(proxy);
 
+    // 生成 nitro 服务
     const nitro = await createNitro({
       rootDir,
       dev: false,
@@ -89,3 +81,67 @@ const main = defineCommand({
 });
 
 runMain(main);
+
+/**
+ * 重写端口
+ */
+function overwritePort(port: string) {
+  if (isNaN(Number(port))) {
+    throw new TypeError("服务端口号 port 必须是数字字符串");
+  }
+  process.env.PORT = String(parseInt(port, 10));
+  logger.success(`服务端口 → ${process.env.PORT}`);
+}
+
+/**
+ * 解析 vite 配置
+ */
+async function resolveViteConfig(dir: string) {
+  const viteConfig = await Layers({
+    extends: [dir],
+  }) as UserConfig;
+  const outDir = viteConfig?.build?.outDir ?? "./dist";
+
+  const proxy = viteConfig.server?.proxy ?? {};
+  return {
+    proxy,
+    outDir,
+  };
+}
+
+/**
+ * 创建代理路由规则
+ */
+function createProxyRouteRules(
+  proxy: NonNullable<NonNullable<UserConfig["server"]>["proxy"]>,
+) {
+  const routeRules: NitroConfig["routeRules"] = {};
+
+  for (const r in proxy) {
+    if (Object.prototype.hasOwnProperty.call(proxy, r)) {
+      const meta = proxy[r];
+      if (typeof meta === "undefined") {
+        continue;
+      }
+      const route = `${r}/**`;
+
+      let target: string;
+      if (isString(meta)) {
+        target = meta;
+      } else if (isString(meta.target)) {
+        target = meta.target;
+      } else {
+        throw new Error(`代理类型错误，仅支持 string 类型 → ${meta.target}`);
+      }
+      // 规范代理类型
+      if (target.endsWith("/")) {
+        target = target.slice(0, -1);
+      }
+      routeRules[route] = {
+        proxy: `${target}/**`,
+      };
+      logger.success("代理成功 → " + target);
+    }
+  }
+  return routeRules;
+}
