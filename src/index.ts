@@ -70,7 +70,7 @@ const main = defineCommand({
       preset: args.preset ?? "node-cluster",
       publicAssets: [{
         dir: outDir,
-        maxAge: 3600,
+        maxAge: 3600, // 一天
       }],
       routeRules,
       sourceMap: false,
@@ -154,57 +154,60 @@ function createProxyRouteRules(
  * 确保进行 vite build
  */
 async function ensureViteBuild(rootDir: string, outDir: string) {
-  if (!existsSync(outDir) || (await readdir(outDir)).length === 0) {
-    logger.warn(`${outDir} 不存在，可能没有进行 vite build`);
+  if (existsSync(outDir) && (await readdir(outDir)).length > 0) {
+    return;
+  }
 
-    const shouldAutoBuild = await logger.prompt("是否自动 vite build", {
-      type: "confirm",
+  logger.warn(`${outDir} 不存在，可能没有进行 vite build`);
+
+  const shouldAutoBuild = await logger.prompt("是否自动 vite build", {
+    type: "confirm",
+  });
+
+  if (!shouldAutoBuild) {
+    throw new Error(`请先进行 vite build`);
+  }
+
+  const packageJsonFile = resolve(rootDir, "package.json");
+  if (!existsSync(packageJsonFile)) {
+    logger.warn(`不存在 ${packageJsonFile}，开始执行 npx vite build`);
+    await npxVitBuild();
+    return;
+  }
+
+  try {
+    const packageJsonText = await readFile(packageJsonFile, {
+      encoding: "utf-8",
     });
+    const scripts: Record<string, string> =
+      JSON.parse(packageJsonText)["scripts"];
 
-    if (!shouldAutoBuild) {
-      throw new Error(`请先进行 vite build`);
-    }
-
-    const packageJsonFile = resolve(rootDir, "package.json");
-    if (!existsSync(packageJsonFile)) {
-      logger.warn(`不存在 ${packageJsonFile}，开始执行 npx vite build`);
+    if (!scripts) {
+      logger.warn(
+        `${packageJsonFile} 中不存在 scripts，开始执行 npx vite build`,
+      );
       await npxVitBuild();
       return;
     }
 
-    try {
-      const packageJsonText = await readFile(packageJsonFile, {
-        encoding: "utf-8",
-      });
-      const scripts = JSON.parse(packageJsonText)["scripts"] || {};
-      if (!scripts) {
-        logger.warn(
-          `${packageJsonFile} 中不存在 scripts，开始执行 npx vite build`,
-        );
-        await npxVitBuild();
-      }
+    const pm = await detectPackageManager(rootDir) ?? { name: "npm" };
 
-      for (const scriptKey in scripts) {
-        if (Object.prototype.hasOwnProperty.call(scripts, scriptKey)) {
-          const scriptValue = scripts[scriptKey] as string;
-          if (scriptValue.includes("vite build")) {
-            const pm = await detectPackageManager(rootDir) ?? { name: "npm" };
-            logger.info(`执行 ${pm.name} run ${scriptKey} → ${scriptValue}`);
-            await execa(pm.name, ["run", scriptKey], {
-              cwd: rootDir,
-              stdin: "inherit",
-              stderr: "inherit",
-              stdout: "inherit",
-            });
-            break;
-          }
-        }
+    for (const [scriptKey, scriptValue] of Object.entries(scripts)) {
+      if (scriptValue.includes("vite build")) {
+        logger.info(`执行 ${pm.name} run ${scriptKey} → ${scriptValue}`);
+        await execa(pm.name, ["run", scriptKey], {
+          cwd: rootDir,
+          stdin: "inherit",
+          stderr: "inherit",
+          stdout: "inherit",
+        });
+        return;
       }
-    } catch (error) {
-      logger.error(error);
-      logger.error(`解析 ${packageJsonFile} 错误，开始执行 npx vite build`);
-      await npxVitBuild();
     }
+  } catch (error) {
+    logger.error(error);
+    logger.error(`解析 ${packageJsonFile} 错误，开始执行 npx vite build`);
+    await npxVitBuild();
   }
 
   async function npxVitBuild() {
