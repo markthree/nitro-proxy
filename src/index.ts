@@ -33,19 +33,21 @@ const main = defineCommand({
   },
   args: {
     ...commonArgs,
+    port: {
+      type: "string",
+      default: "3000",
+      description: "服务端口",
+    },
     minify: {
+      default: true,
       type: "boolean",
       description:
         "最小化输出（覆盖预设默认值，也可以使用 `--no-minify` 停用）。",
     },
     preset: {
       type: "string",
+      default: "node-cluster",
       description: "要使用的构建预置（也可以使用 `NITRO_PRESET` 环境变量）。",
-    },
-    port: {
-      type: "string",
-      default: "3000",
-      description: "服务端口",
     },
   },
   async run({ args }) {
@@ -66,8 +68,8 @@ const main = defineCommand({
     const nitro = await createNitro({
       rootDir,
       dev: false,
-      minify: args.minify ?? true,
-      preset: args.preset ?? "node-cluster",
+      minify: args.minify,
+      preset: args.preset,
       publicAssets: [{
         dir: outDir,
         maxAge: 3600, // 一天
