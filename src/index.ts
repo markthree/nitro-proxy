@@ -74,6 +74,10 @@ const main = defineCommand({
       }],
       routeRules,
       sourceMap: false,
+      compressPublicAssets: {
+        gzip: true,
+        brotli: true,
+      },
     });
     await prepare(nitro);
     await copyPublicAssets(nitro);
