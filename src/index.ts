@@ -11,7 +11,7 @@ import {
 import { resolve } from "pathe";
 import { Layers } from "vite-layers";
 
-import { consola } from "consola";
+import { logger } from "./logger";
 import { isString } from "m-type-tools";
 import { detectPackageManager } from "nypm";
 import { description, name, version } from "../package.json";
@@ -21,23 +21,17 @@ import { execa } from "execa";
 import { readdir, readFile } from "fs/promises";
 import type { UserConfig } from "vite-layers";
 
-const logger = consola.withTag("nitro-proxy");
-
-logger.wrapAll();
-
 const main = defineCommand({
   meta: {
     name,
-    description,
     version,
+    description,
+  },
+  subCommands: {
+    start: () => import("./start").then((r) => r.default),
   },
   args: {
     ...commonArgs,
-    port: {
-      type: "string",
-      default: "3000",
-      description: "服务端口",
-    },
     minify: {
       default: true,
       type: "boolean",
@@ -51,9 +45,6 @@ const main = defineCommand({
     },
   },
   async run({ args }) {
-    // 覆盖端口
-    overwritePort(args.port);
-
     // 解析 vite 配置
     const rootDir = resolve((args.dir || args._dir || ".") as string);
     const { proxy, outDir } = await resolveViteConfig(rootDir);
@@ -91,17 +82,6 @@ const main = defineCommand({
 });
 
 runMain(main);
-
-/**
- * 重写端口
- */
-function overwritePort(port: string) {
-  if (isNaN(Number(port))) {
-    throw new TypeError("服务端口号 port 必须是数字字符串");
-  }
-  process.env.PORT = String(parseInt(port, 10));
-  logger.success(`服务端口 → ${process.env.PORT}`);
-}
 
 /**
  * 解析 vite 配置
