@@ -2,7 +2,7 @@ import { defineCommand } from "citty";
 import { execa } from "execa";
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";
-import { resolve } from "path";
+import { dirname, resolve } from "pathe";
 import { logger } from "./logger";
 import { green, red } from "kolorist";
 
@@ -39,6 +39,7 @@ export default defineCommand({
     const [runtime, ...commands] = preview.split(" ");
     await execa(runtime, commands, {
       stdio: "inherit",
+      cwd: dirname(metaFile),
     });
   },
 });
