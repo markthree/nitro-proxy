@@ -82,6 +82,8 @@ const main = defineCommand({
     await nitro.close();
 
     logger.success(`生成代理服务成功 → ${green(nitro.options.output.dir)}`);
+
+    logger.success(`使用 npx nitro-proxy start 启动服务`);
   },
 });
 

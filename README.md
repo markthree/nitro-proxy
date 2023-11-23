@@ -12,11 +12,21 @@
 
 ## 使用
 
+### 打包
+
 在你的 `vite` 项目中
 
 ```shell
 # 生成自动代理的后端服务
 npx nitro-proxy
+```
+
+### 启动
+
+打包完成后启动服务
+
+```shell
+npx nitro-proxy start
 ```
 
 <br />
