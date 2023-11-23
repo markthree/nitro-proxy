@@ -45,6 +45,7 @@
     "citty": "^0.1.5",
     "consola": "^3.2.3",
     "execa": "^8.0.1",
+    "kolorist": "^1.8.0",
     "m-type-tools": "^0.4.1",
     "nitropack": "^2.8.0",
     "nypm": "^0.3.3",

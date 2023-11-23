@@ -20,6 +20,7 @@ import { checkNodeVersion, commonArgs } from "./common";
 import { execa } from "execa";
 import { readdir, readFile } from "fs/promises";
 import type { UserConfig } from "vite-layers";
+import { green, red, yellow } from "kolorist";
 
 const main = defineCommand({
   meta: {
@@ -80,7 +81,7 @@ const main = defineCommand({
     await build(nitro);
     await nitro.close();
 
-    logger.success(`生成代理服务成功 → ${nitro.options.output.dir}`);
+    logger.success(`生成代理服务成功 → ${green(nitro.options.output.dir)}`);
   },
 });
 
@@ -124,7 +125,9 @@ function createProxyRouteRules(
       } else if (isString(meta.target)) {
         target = meta.target;
       } else {
-        throw new Error(`代理类型错误，仅支持 string 类型 → ${meta.target}`);
+        throw new Error(
+          `代理类型错误，仅支持 string 类型 → ${red(String(meta.target))}`,
+        );
       }
       // 规范代理类型
       if (target.endsWith("/")) {
@@ -133,7 +136,7 @@ function createProxyRouteRules(
       routeRules[route] = {
         proxy: `${target}/**`,
       };
-      logger.success("代理成功 → " + target);
+      logger.success(`代理成功 → ${green(target)}`);
     }
   }
   return routeRules;
@@ -147,11 +150,14 @@ async function ensureViteBuild(rootDir: string, outDir: string) {
     return;
   }
 
-  logger.warn(`${outDir} 不存在，可能没有进行 vite build`);
+  logger.warn(`${yellow(outDir)} 不存在，可能没有进行 ${yellow("vite build")}`);
 
-  const shouldAutoBuild = await logger.prompt("是否自动 vite build", {
-    type: "confirm",
-  });
+  const shouldAutoBuild = await logger.prompt(
+    `是否自动 ${green("vite build")}`,
+    {
+      type: "confirm",
+    },
+  );
 
   if (!shouldAutoBuild) {
     throw new Error(`请先进行 vite build`);
@@ -159,7 +165,9 @@ async function ensureViteBuild(rootDir: string, outDir: string) {
 
   const packageJsonFile = resolve(rootDir, "package.json");
   if (!existsSync(packageJsonFile)) {
-    logger.warn(`不存在 ${packageJsonFile}，开始执行 npx vite build`);
+    logger.warn(
+      `不存在 ${yellow(packageJsonFile)}，开始执行 ${green("npx vite build")}`,
+    );
     await npxVitBuild();
     return;
   }
@@ -173,7 +181,9 @@ async function ensureViteBuild(rootDir: string, outDir: string) {
 
     if (!scripts) {
       logger.warn(
-        `${packageJsonFile} 中不存在 scripts，开始执行 npx vite build`,
+        `${yellow(packageJsonFile)} 中不存在 ${yellow(scripts)}，开始执行 ${
+          green("npx vite build")
+        }`,
       );
       await npxVitBuild();
       return;
@@ -183,7 +193,7 @@ async function ensureViteBuild(rootDir: string, outDir: string) {
 
     for (const [scriptKey, scriptValue] of Object.entries(scripts)) {
       if (scriptValue.includes("vite build")) {
-        logger.info(`执行 ${pm.name} run ${scriptKey} → ${scriptValue}`);
+        logger.info(`执行 ${pm.name} run ${scriptKey} → ${green(scriptValue)}`);
         await execa(pm.name, ["run", scriptKey], {
           cwd: rootDir,
           stdin: "inherit",
@@ -195,7 +205,9 @@ async function ensureViteBuild(rootDir: string, outDir: string) {
     }
   } catch (error) {
     logger.error(error);
-    logger.error(`解析 ${packageJsonFile} 错误，开始执行 npx vite build`);
+    logger.error(
+      `解析 ${red(packageJsonFile)} 错误，开始执行 ${green("npx vite build")}`,
+    );
     await npxVitBuild();
   }
 

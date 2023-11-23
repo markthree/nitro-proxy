@@ -4,6 +4,7 @@ import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { resolve } from "path";
 import { logger } from "./logger";
+import { green, red } from "kolorist";
 
 export default defineCommand({
   meta: {
@@ -28,12 +29,12 @@ export default defineCommand({
     const metaJson = await resolveMetaFile(metaFile);
 
     if (!metaJson.commands.preview) {
-      throw new Error(`不存在 commands.preview 命令 -> ${metaFile}`);
+      throw new Error(`不存在 commands.preview 命令 → ${red(metaFile)}`);
     }
 
     const { preview } = metaJson.commands;
 
-    logger.success(`执行 preview 命令 -> ${preview}`);
+    logger.success(`执行 preview 命令 → ${green(preview)}`);
 
     const [runtime, ...commands] = preview.split(" ");
     await execa(runtime, commands, {
@@ -50,7 +51,7 @@ function overwritePort(port: string) {
     throw new TypeError("服务端口号 port 必须是数字字符串");
   }
   process.env.PORT = String(parseInt(port, 10));
-  logger.success(`服务端口 → ${process.env.PORT}`);
+  logger.success(`服务端口 → ${green(process.env.PORT)}`);
 }
 
 function findNitroMetaJson() {
@@ -74,6 +75,6 @@ async function resolveMetaFile(file: string) {
   try {
     return JSON.parse(text) ?? {};
   } catch (error: any) {
-    throw new Error(`解析错误，请检查格式 -> ${file}`);
+    throw new Error(`解析错误，请检查格式 → ${file}`);
   }
 }

@@ -1,6 +1,7 @@
 import { version } from "process";
 import type { ArgsDef } from "citty";
 import { logger } from "./logger";
+import { green } from "kolorist";
 
 export const commonArgs = <ArgsDef> {
   dir: {
@@ -21,5 +22,5 @@ export function checkNodeVersion() {
       "当前 node 版本小于 16，可能会照成超出预期的错误，请更新你的 node 版本",
     );
   }
-  logger.success(`当前 node 版本 → ${version}`);
+  logger.success(`node → ${green(version)}`);
 }
