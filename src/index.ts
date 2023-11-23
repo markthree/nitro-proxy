@@ -15,7 +15,7 @@ import { logger } from "./logger";
 import { isString } from "m-type-tools";
 import { detectPackageManager } from "nypm";
 import { description, name, version } from "../package.json";
-import { commonArgs } from "./common";
+import { checkNodeVersion, commonArgs } from "./common";
 
 import { execa } from "execa";
 import { readdir, readFile } from "fs/promises";
@@ -43,6 +43,9 @@ const main = defineCommand({
       default: "node-cluster",
       description: "要使用的构建预置（也可以使用 `NITRO_PRESET` 环境变量）。",
     },
+  },
+  setup() {
+    checkNodeVersion();
   },
   async run({ args }) {
     // 解析 vite 配置
