@@ -1,3 +1,5 @@
 dist
+.nitro
+.output
 coverage
 node_modules
