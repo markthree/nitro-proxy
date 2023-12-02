@@ -12,7 +12,6 @@ import { resolve } from "pathe";
 import { Layers } from "vite-layers";
 
 import { logger } from "./logger";
-import { isString } from "m-type-tools";
 import { detectPackageManager } from "nypm";
 import { description, name, version } from "../package.json";
 import { checkNodeVersion, commonArgs } from "./common";
@@ -221,4 +220,8 @@ async function ensureViteBuild(rootDir: string, outDir: string) {
       stdout: "inherit",
     });
   }
+}
+
+function isString(v: unknown): v is string {
+  return typeof v === "string";
 }

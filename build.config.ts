@@ -6,7 +6,6 @@ export default defineBuildConfig({
     esbuild: {
       minify: true,
       treeShaking: true,
-      target: ["node14", "es2015"],
     },
   },
 });
