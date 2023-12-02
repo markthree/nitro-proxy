@@ -38,18 +38,18 @@
   "devDependencies": {
     "@types/node": "^18.18.12",
     "bumpp": "^9.2.0",
-    "typescript": "^5.3.2",
-    "unbuild": "^2.0.0"
-  },
-  "dependencies": {
     "citty": "^0.1.5",
     "consola": "^3.2.3",
     "execa": "^8.0.1",
     "kolorist": "^1.8.0",
     "m-type-tools": "^0.4.1",
-    "nitropack": "^2.8.0",
     "nypm": "^0.3.3",
     "pathe": "^1.1.1",
+    "typescript": "^5.3.2",
+    "unbuild": "^2.0.0",
     "vite-layers": "^0.3.9"
+  },
+  "dependencies": {
+    "nitropack": "^2.8.0"
   }
 }
