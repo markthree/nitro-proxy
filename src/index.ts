@@ -197,9 +197,7 @@ async function ensureViteBuild(rootDir: string, outDir: string) {
         logger.info(`执行 ${pm.name} run ${scriptKey} → ${green(scriptValue)}`);
         await execa(pm.name, ["run", scriptKey], {
           cwd: rootDir,
-          stdin: "inherit",
-          stderr: "inherit",
-          stdout: "inherit",
+          stdio: "inherit",
         });
         return;
       }
@@ -207,7 +205,9 @@ async function ensureViteBuild(rootDir: string, outDir: string) {
   } catch (error) {
     logger.error(error);
     logger.error(
-      `解析 ${red(packageJsonFile)} 错误，开始执行 ${green("npx vite build")}`,
+      `运行 ${red(packageJsonFile)} 命令错误，开始执行 ${
+        green("npx vite build")
+      }`,
     );
     await npxVitBuild();
   }
@@ -215,9 +215,7 @@ async function ensureViteBuild(rootDir: string, outDir: string) {
   async function npxVitBuild() {
     await execa("npx", ["vite", "build"], {
       cwd: rootDir,
-      stdin: "inherit",
-      stderr: "inherit",
-      stdout: "inherit",
+      stdio: "inherit",
     });
   }
 }

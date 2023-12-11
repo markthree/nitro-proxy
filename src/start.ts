@@ -9,7 +9,7 @@ import { green, red } from "kolorist";
 export default defineCommand({
   meta: {
     name: "start",
-    description: "Build the project from current directory",
+    description: "从 .output 中启动",
   },
   args: {
     port: {
