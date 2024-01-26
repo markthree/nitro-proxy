@@ -3,8 +3,10 @@ import { execa } from "execa";
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { dirname, resolve } from "pathe";
-import { logger } from "./logger";
+import { logger as _logger } from "./logger";
 import { green, red } from "kolorist";
+
+const logger = _logger.withTag("start");
 
 export default defineCommand({
   meta: {
@@ -28,19 +30,21 @@ export default defineCommand({
     // 解析 preview 命令
     const metaJson = await resolveMetaFile(metaFile);
 
-    if (!metaJson.commands.preview) {
+    if (!metaJson.commands?.preview) {
       throw new Error(`不存在 commands.preview 命令 → ${red(metaFile)}`);
     }
 
+    const cwd = dirname(metaFile);
     const { preview } = metaJson.commands;
-
+    logger.success(`cwd → ${green(cwd)}`);
     logger.success(`执行 preview 命令 → ${green(preview)}`);
-
     const [runtime, ...commands] = preview.split(" ");
     await execa(runtime, commands, {
+      cwd,
       stdio: "inherit",
-      cwd: dirname(metaFile),
     });
+    console.log();
+    logger.success(`服务地址 → http://localhost:${process.env.PORT}`);
   },
 });
 
@@ -71,10 +75,12 @@ function findNitroMetaJson() {
   );
 }
 
-async function resolveMetaFile(file: string) {
+async function resolveMetaFile(
+  file: string,
+): Promise<{ commands?: Record<string, string> }> {
   const text = await readFile(file, { encoding: "utf-8" });
   try {
-    return JSON.parse(text) ?? {};
+    return JSON.parse(text) ?? { commands: {} };
   } catch (error: any) {
     throw new Error(`解析错误，请检查格式 → ${file}`);
   }
