@@ -57,20 +57,11 @@ const main = defineCommand({
   async run({ args }) {
     // 解析 vite 配置
     const rootDir = resolve((args.dir || args._dir || ".") as string);
-    const dist = resolve(rootDir, "dist");
-
-    if (existsSync(dist)) {
-      if (!args.force) {
-        args.force = await logger.prompt("已存在 dist，是否强制 vite build", {
-          type: "confirm",
-        });
-      }
-      if (args.force) {
-        await emptyDir(dist);
-      }
-    }
 
     const { proxy, outDir, base } = await resolveViteConfig(rootDir);
+
+    // 可能要清理 dist 目录
+    await mayBeCleanDist(rootDir, outDir, args.force);
 
     // 确保 vite build
     await ensureViteBuild(rootDir, outDir);
@@ -171,7 +162,8 @@ function createProxyRouteRules(
  * 确保进行 vite build
  */
 async function ensureViteBuild(rootDir: string, outDir: string) {
-  if (existsSync(outDir) && (await readdir(outDir)).length > 0) {
+  const dist = resolve(rootDir, outDir);
+  if (existsSync(dist) && (await readdir(dist)).length > 0) {
     return;
   }
 
@@ -250,4 +242,28 @@ async function ensureViteBuild(rootDir: string, outDir: string) {
 
 function isString(v: unknown): v is string {
   return typeof v === "string";
+}
+
+/**
+ * 可能要清理 dist 目录
+ */
+async function mayBeCleanDist(
+  rootDir: string,
+  outDir: string,
+  force?: boolean,
+) {
+  const dist = resolve(rootDir, outDir);
+  if (existsSync(dist)) {
+    if (!force) {
+      force = await logger.prompt(
+        `已存在 ${yellow(outDir)}，是否强制重新生成`,
+        {
+          type: "confirm",
+        },
+      );
+    }
+    if (force) {
+      await emptyDir(dist);
+    }
+  }
 }
