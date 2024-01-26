@@ -17,6 +17,7 @@ import { description, name, version } from "../package.json";
 import { checkNodeVersion, commonArgs } from "./common";
 
 import { execa } from "execa";
+import { emptyDir } from "fs-extra";
 import { readdir, readFile } from "fs/promises";
 import type { UserConfig } from "vite-layers";
 import { green, red, yellow } from "kolorist";
@@ -38,6 +39,12 @@ const main = defineCommand({
       description:
         "最小化输出（覆盖预设默认值，也可以使用 `--no-minify` 停用）。",
     },
+    force: {
+      default: false,
+      type: "boolean",
+      description:
+        "强制 vite 重新打包（覆盖预设默认值，也可以使用 `--force` 启用）。",
+    },
     preset: {
       type: "string",
       default: "node-cluster",
@@ -50,6 +57,19 @@ const main = defineCommand({
   async run({ args }) {
     // 解析 vite 配置
     const rootDir = resolve((args.dir || args._dir || ".") as string);
+    const dist = resolve(rootDir, "dist");
+
+    if (existsSync(dist)) {
+      if (!args.force) {
+        args.force = await logger.prompt("已存在 dist，是否强制 vite build", {
+          type: "confirm",
+        });
+      }
+      if (args.force) {
+        await emptyDir(dist);
+      }
+    }
+
     const { proxy, outDir, base } = await resolveViteConfig(rootDir);
 
     // 确保 vite build
@@ -65,10 +85,12 @@ const main = defineCommand({
       baseURL: base,
       minify: args.minify,
       preset: args.preset,
-      publicAssets: [{
-        dir: outDir,
-        maxAge: 3600, // 一天
-      }],
+      publicAssets: [
+        {
+          dir: outDir,
+          maxAge: 3600, // 一天
+        },
+      ],
       routeRules,
       sourceMap: false,
       compressPublicAssets: {
@@ -93,9 +115,9 @@ runMain(main);
  * 解析 vite 配置
  */
 async function resolveViteConfig(dir: string) {
-  const viteConfig = await Layers({
+  const viteConfig = (await Layers({
     extends: [dir],
-  }) as UserConfig;
+  })) as UserConfig;
   const outDir = viteConfig?.build?.outDir ?? "./dist";
 
   const proxy = viteConfig.server?.proxy ?? {};
@@ -184,15 +206,17 @@ async function ensureViteBuild(rootDir: string, outDir: string) {
 
     if (!scripts) {
       logger.warn(
-        `${yellow(packageJsonFile)} 中不存在 ${yellow(scripts)}，开始执行 ${
-          green("npx vite build")
-        }`,
+        `${yellow(packageJsonFile)} 中不存在 ${
+          yellow(
+            scripts,
+          )
+        }，开始执行 ${green("npx vite build")}`,
       );
       await npxVitBuild();
       return;
     }
 
-    const pm = await detectPackageManager(rootDir) ?? { name: "npm" };
+    const pm = (await detectPackageManager(rootDir)) ?? { name: "npm" };
 
     for (const [scriptKey, scriptValue] of Object.entries(scripts)) {
       if (scriptValue.includes("vite build")) {
@@ -208,7 +232,9 @@ async function ensureViteBuild(rootDir: string, outDir: string) {
     logger.error(error);
     logger.error(
       `运行 ${red(packageJsonFile)} 命令错误，开始执行 ${
-        green("npx vite build")
+        green(
+          "npx vite build",
+        )
       }`,
     );
     await npxVitBuild();
