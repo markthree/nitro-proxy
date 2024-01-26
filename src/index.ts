@@ -21,6 +21,10 @@ import { emptyDir } from "fs-extra";
 import { readdir, readFile } from "fs/promises";
 import type { UserConfig } from "vite-layers";
 import { green, red, yellow } from "kolorist";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const _dirname = dirname(fileURLToPath(import.meta.url));
 
 const main = defineCommand({
   meta: {
@@ -87,6 +91,27 @@ const main = defineCommand({
       compressPublicAssets: {
         gzip: true,
         brotli: true,
+      },
+      handlers: [{
+        handler: resolve(_dirname, "../runtime/middleware/404.js"),
+        middleware: true,
+      }],
+      virtual: {
+        // 导出目录路径给 runtime 用
+        "#nitro-proxy-config": () => {
+          return `
+          import { fileURLToPath } from "url";
+          import { dirname, resolve } from "path";
+          
+          export function serverDir() {
+            return dirname(fileURLToPath(import.meta.url))
+          }
+    
+          export function publicDir() {
+            return resolve(serverDir(), "../public")
+          }
+          `;
+        },
       },
     });
     await prepare(nitro);

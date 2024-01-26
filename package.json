@@ -12,7 +12,8 @@
     "url": "git+https://github.com/markthree/nitro-proxy.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "runtime"
   ],
   "scripts": {
     "build": "unbuild",
