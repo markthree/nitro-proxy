@@ -36,15 +36,15 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^18.19.1",
-    "bumpp": "^9.2.0",
-    "kolorist": "^1.8.0",
-    "pathe": "^1.1.1",
-    "typescript": "^5.3.2",
-    "execa": "^8.0.1",
-    "nypm": "^0.3.3",
-    "unbuild": "^2.0.0",
+    "@types/node": "^18.19.6",
+    "bumpp": "^9.2.1",
     "citty": "^0.1.5",
+    "execa": "^8.0.1",
+    "kolorist": "^1.8.0",
+    "nypm": "^0.3.3",
+    "pathe": "^1.1.1",
+    "typescript": "^5.3.3",
+    "unbuild": "^2.0.0",
     "vite-layers": "^0.3.9"
   },
   "dependencies": {

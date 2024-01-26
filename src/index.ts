@@ -50,7 +50,7 @@ const main = defineCommand({
   async run({ args }) {
     // 解析 vite 配置
     const rootDir = resolve((args.dir || args._dir || ".") as string);
-    const { proxy, outDir } = await resolveViteConfig(rootDir);
+    const { proxy, outDir, base } = await resolveViteConfig(rootDir);
 
     // 确保 vite build
     await ensureViteBuild(rootDir, outDir);
@@ -62,6 +62,7 @@ const main = defineCommand({
     const nitro = await createNitro({
       rootDir,
       dev: false,
+      baseURL: base,
       minify: args.minify,
       preset: args.preset,
       publicAssets: [{
@@ -99,6 +100,7 @@ async function resolveViteConfig(dir: string) {
 
   const proxy = viteConfig.server?.proxy ?? {};
   return {
+    base: viteConfig.base,
     proxy,
     outDir,
   };
