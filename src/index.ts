@@ -21,11 +21,8 @@ import { emptyDir } from "fs-extra";
 import { readdir, readFile } from "fs/promises";
 import type { UserConfig } from "vite-layers";
 import { green, red, yellow } from "kolorist";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
 import nitroPublic from "nitro-public-module";
-
-const _dirname = dirname(fileURLToPath(import.meta.url));
+import { isPackageExists } from "local-pkg";
 
 const main = defineCommand({
   meta: {
@@ -41,25 +38,35 @@ const main = defineCommand({
     minify: {
       default: true,
       type: "boolean",
-      description:
-        "最小化输出（覆盖预设默认值，也可以使用 `--no-minify` 停用）。",
+      description: "最小化输出 (覆盖预设默认值，也可以使用 `--no-minify` 停用)",
     },
     force: {
       default: false,
       type: "boolean",
       description:
-        "强制 vite 重新打包（覆盖预设默认值，也可以使用 `--force` 启用）。",
+        "强制 vite 重新打包 (覆盖预设默认值，也可以使用 `--force` 启用)",
     },
     preset: {
       type: "string",
       default: "node-cluster",
-      description: "要使用的构建预置（也可以使用 `NITRO_PRESET` 环境变量）。",
+      description: "要使用的构建预置 (也可以使用 `NITRO_PRESET` 环境变量)",
+    },
+    type: {
+      type: "string",
+      default: detectType(),
+      valueHint: "spa | ssg",
+      description: "项目类型 (默认会自动推断)",
     },
   },
   setup() {
     checkNodeVersion();
   },
   async run({ args }) {
+    if (!checkType(args.type)) {
+      logger.error("错误项目类型，仅支持 --type=ssg 或者 --type=spa");
+      return;
+    }
+
     // 解析 vite 配置
     const rootDir = resolve((args.dir || args._dir || ".") as string);
 
@@ -95,7 +102,7 @@ const main = defineCommand({
       },
       modules: [
         nitroPublic({
-          preset: "spa",
+          preset: args.type as "spa" | "ssg",
         }),
       ],
     });
@@ -276,4 +283,15 @@ async function mayBeCleanDist(
       await emptyDir(dist);
     }
   }
+}
+
+function detectType() {
+  const packages = ["vite-ssg"];
+  const isSsg = packages.some((pkg) => isPackageExists(pkg));
+  return isSsg ? "ssg" : "spa";
+}
+
+function checkType(type: string) {
+  const enabledTypes = ["ssg", "spa"];
+  return enabledTypes.some((t) => t === type);
 }
