@@ -23,6 +23,7 @@ import type { UserConfig } from "vite-layers";
 import { green, red, yellow } from "kolorist";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import nitroPublic from "nitro-public-module";
 
 const _dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -92,27 +93,11 @@ const main = defineCommand({
         gzip: true,
         brotli: true,
       },
-      handlers: [{
-        handler: resolve(_dirname, "../runtime/middleware/404.js"),
-        middleware: true,
-      }],
-      virtual: {
-        // 导出目录路径给 runtime 用
-        "#nitro-proxy-config": () => {
-          return `
-          import { fileURLToPath } from "url";
-          import { dirname, resolve } from "path";
-          
-          export function serverDir() {
-            return dirname(fileURLToPath(import.meta.url))
-          }
-    
-          export function publicDir() {
-            return resolve(serverDir(), "../public")
-          }
-          `;
-        },
-      },
+      modules: [
+        nitroPublic({
+          preset: "spa",
+        }),
+      ],
     });
     await prepare(nitro);
     await copyPublicAssets(nitro);

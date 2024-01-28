@@ -12,8 +12,7 @@
     "url": "git+https://github.com/markthree/nitro-proxy.git"
   },
   "files": [
-    "dist",
-    "runtime"
+    "dist"
   ],
   "scripts": {
     "build": "unbuild",
@@ -52,6 +51,7 @@
   },
   "dependencies": {
     "consola": "^3.2.3",
+    "nitro-public-module": "^0.0.1",
     "nitropack": "^2.8.1"
   }
 }
