@@ -13,13 +13,14 @@ import { Layers } from "vite-layers";
 import { logger } from "./logger";
 import { detectPackageManager } from "nypm";
 import { description, name, version } from "../package.json";
-import { checkNodeVersion, commonArgs } from "./common";
+import { checkNodeVersion, commonArgs, usePort } from "./common";
 
 import { execa } from "execa";
 import { emptyDir } from "fs-extra";
 import { readdir, readFile } from "fs/promises";
 import type { UserConfig } from "vite-layers";
 import { green, red, yellow } from "kolorist";
+import nitroPort from "nitro-port-module";
 import nitroPublic from "nitro-public-module";
 import { isPackageExists } from "local-pkg";
 export { defineNitroConfig } from "nitropack/config";
@@ -56,6 +57,11 @@ const main = defineCommand({
       default: detectType(),
       valueHint: "spa | ssg",
       description: "项目类型 (默认会自动推断)",
+    },
+    port: {
+      type: "string",
+      default: "3000",
+      description: "默认端口",
     },
   },
   setup() {
@@ -101,6 +107,9 @@ const main = defineCommand({
         brotli: true,
       },
       modules: [
+        nitroPort({
+          port: Number(usePort(args.port)),
+        }),
         nitroPublic({
           preset: args.type as "spa" | "ssg",
         }),

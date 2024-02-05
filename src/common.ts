@@ -24,3 +24,10 @@ export function checkNodeVersion() {
   }
   logger.success(`node → ${green(version)}`);
 }
+
+export function usePort(port: string) {
+  if (isNaN(Number(port))) {
+    throw new TypeError("服务端口号 port 必须是数字字符串");
+  }
+  return String(parseInt(port, 10));
+}

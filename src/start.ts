@@ -5,6 +5,7 @@ import { readFile } from "fs/promises";
 import { dirname, resolve } from "pathe";
 import { logger as _logger } from "./logger";
 import { green, red } from "kolorist";
+import { usePort } from "./common";
 
 const logger = _logger.withTag("start");
 
@@ -16,13 +17,15 @@ export default defineCommand({
   args: {
     port: {
       type: "string",
-      default: "3000",
+      required: false,
       description: "服务端口",
     },
   },
   async run({ args }) {
-    // 覆盖端口
-    overwritePort(args.port);
+    if (args.port !== undefined) {
+      // 覆盖端口
+      overwritePort(args.port);
+    }
 
     // 搜索 metaFile
     const metaFile = findNitroMetaJson();
@@ -52,10 +55,7 @@ export default defineCommand({
  * 重写端口
  */
 function overwritePort(port: string) {
-  if (isNaN(Number(port))) {
-    throw new TypeError("服务端口号 port 必须是数字字符串");
-  }
-  process.env.PORT = String(parseInt(port, 10));
+  process.env.PORT = usePort(port);
   logger.success(`服务端口 → ${green(process.env.PORT)}`);
 }
 

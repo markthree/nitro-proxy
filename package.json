@@ -59,6 +59,7 @@
   },
   "dependencies": {
     "consola": "^3.2.3",
+    "nitro-port-module": "^0.0.1",
     "nitro-public-module": "^0.0.5",
     "nitropack": "^2.8.1"
   }
