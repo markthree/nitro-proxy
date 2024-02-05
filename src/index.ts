@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { defineCommand, runMain } from "citty";
 import { existsSync } from "fs";
 import {
@@ -23,6 +22,7 @@ import type { UserConfig } from "vite-layers";
 import { green, red, yellow } from "kolorist";
 import nitroPublic from "nitro-public-module";
 import { isPackageExists } from "local-pkg";
+export { defineNitroConfig } from "nitropack/config";
 
 const main = defineCommand({
   meta: {
@@ -117,7 +117,9 @@ const main = defineCommand({
   },
 });
 
-runMain(main);
+export async function runCli() {
+  await runMain(main);
+}
 
 /**
  * 解析 vite 配置
