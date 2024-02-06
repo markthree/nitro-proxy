@@ -32,6 +32,7 @@ const main = defineCommand({
     description,
   },
   subCommands: {
+    stop: () => import("./stop").then((r) => r.default),
     start: () => import("./start").then((r) => r.default),
   },
   args: {

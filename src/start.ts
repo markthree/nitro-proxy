@@ -42,6 +42,8 @@ export default defineCommand({
     logger.success(`cwd → ${green(cwd)}`);
     logger.success(`执行 preview 命令 → ${green(preview)}`);
     const [runtime, ...commands] = preview.split(" ");
+    // 添加 title 标记，后续终止时需要用到
+    commands.push("--title=nitro-proxy");
     await execa(runtime, commands, {
       cwd,
       stdio: "inherit",
