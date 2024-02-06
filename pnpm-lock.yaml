@@ -9,8 +9,8 @@ dependencies:
     specifier: ^3.2.3
     version: 3.2.3
   nitro-port-module:
-    specifier: ^0.0.2
-    version: 0.0.2(nitropack@2.8.1)
+    specifier: ^0.0.3
+    version: 0.0.3(nitropack@2.8.1)
   nitro-public-module:
     specifier: ^0.0.7
     version: 0.0.7(nitropack@2.8.1)
@@ -2535,8 +2535,8 @@ packages:
     hasBin: true
     dev: true
 
-  /nitro-port-module@0.0.2(nitropack@2.8.1):
-    resolution: {integrity: sha512-xpDEammyVIb8LRuSuwyc+7zZCQSeS3K7BH9vXgZqKT3Rk2yaR4eTe48YFcIHvw5gz1LOuyTl1FNciVhtKMqQVQ==}
+  /nitro-port-module@0.0.3(nitropack@2.8.1):
+    resolution: {integrity: sha512-JvMkPXpI/PyCEhGa4CkqLpuCdrXo1xWSt5bgQAg1kWAIPZsLqwHE6bjTIMIrwDFFwurWP3cNqZjXdGNgYxfZSw==}
     peerDependencies:
       nitropack: '>=2.0.0'
     dependencies:
