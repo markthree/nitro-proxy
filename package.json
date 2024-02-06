@@ -1,5 +1,5 @@
 {
-  "version": "0.4.0",
+  "version": "0.5.0",
   "name": "nitro-proxy",
   "description": "前端静态服务，支持自动 api 代理",
   "type": "module",
