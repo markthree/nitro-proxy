@@ -10,7 +10,7 @@ import {
 import { resolve } from "pathe";
 import { Layers } from "vite-layers";
 
-import { logger } from "./logger";
+import { confirm, logger } from "./logger";
 import { detectPackageManager } from "nypm";
 import { description, name, version } from "../package.json";
 import { checkNodeVersion, commonArgs, usePort } from "./common";
@@ -79,11 +79,8 @@ const main = defineCommand({
 
     const { proxy, outDir, base } = await resolveViteConfig(rootDir);
 
-    // 可能要清理 dist 目录
-    await mayBeCleanDist(rootDir, outDir, args.force);
-
     // 确保 vite build
-    await ensureViteBuild(rootDir, outDir);
+    await ensureViteBuild(rootDir, outDir, args.force);
 
     // 生成代理路由
     const routeRules = createProxyRouteRules(proxy);
@@ -190,23 +187,22 @@ function createProxyRouteRules(
 /**
  * 确保进行 vite build
  */
-async function ensureViteBuild(rootDir: string, outDir: string) {
+async function ensureViteBuild(rootDir: string, outDir: string, force = false) {
   const dist = resolve(rootDir, outDir);
-  if (existsSync(dist) && (await readdir(dist)).length > 0) {
-    return;
-  }
 
-  logger.warn(`${yellow(outDir)} 不存在，可能没有进行 ${yellow("vite build")}`);
-
-  const shouldAutoBuild = await logger.prompt(
-    `是否自动 ${green("vite build")}`,
-    {
-      type: "confirm",
-    },
-  );
-
-  if (!shouldAutoBuild) {
-    throw new Error(`请先进行 vite build`);
+  if (await noEmpty(dist)) {
+    if (!force) {
+      force = await confirm(`已存在 ${yellow(outDir)}，是否强制重新生成`);
+    }
+    if (!force) {
+      return;
+    }
+  } else {
+    logger.warn(`可能没有进行 ${yellow("vite build")} → ${yellow(outDir)}`);
+    const shouldAutoBuild = await confirm(`是否自动 ${green("vite build")}`);
+    if (!shouldAutoBuild) {
+      throw new Error(`请先进行 vite build`);
+    }
   }
 
   const packageJsonFile = resolve(rootDir, "package.json");
@@ -273,30 +269,6 @@ function isString(v: unknown): v is string {
   return typeof v === "string";
 }
 
-/**
- * 可能要清理 dist 目录
- */
-async function mayBeCleanDist(
-  rootDir: string,
-  outDir: string,
-  force?: boolean,
-) {
-  const dist = resolve(rootDir, outDir);
-  if (existsSync(dist)) {
-    if (!force) {
-      force = await logger.prompt(
-        `已存在 ${yellow(outDir)}，是否强制重新生成`,
-        {
-          type: "confirm",
-        },
-      );
-    }
-    if (force) {
-      await emptyDir(dist);
-    }
-  }
-}
-
 function detectType() {
   const packages = ["vite-ssg"];
   const isSsg = packages.some((pkg) => isPackageExists(pkg));
@@ -306,4 +278,12 @@ function detectType() {
 function checkType(type: string) {
   const enabledTypes = ["ssg", "spa"];
   return enabledTypes.some((t) => t === type);
+}
+
+async function noEmpty(dir: string) {
+  if (!existsSync(dir)) {
+    return false;
+  }
+  const entrys = await readdir(dir);
+  return entrys.length > 0;
 }

@@ -2,4 +2,8 @@ import { createConsola } from "consola";
 
 export const logger = createConsola().withTag("nitro-proxy");
 
-logger.wrapAll();
+export function confirm(msg: string) {
+  return logger.prompt(msg, {
+    type: "confirm",
+  });
+}
