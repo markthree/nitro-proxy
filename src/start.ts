@@ -50,6 +50,8 @@ export default defineCommand({
     });
     console.log();
     logger.success(`服务地址 → http://localhost:${process.env.PORT}`);
+
+    process.exit(0);
   },
 });
 

@@ -101,5 +101,7 @@ export default defineCommand({
     }
 
     logger.error("没有任何参数可用");
+
+    process.exit(0);
   },
 });
