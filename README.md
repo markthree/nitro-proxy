@@ -29,6 +29,14 @@ npx nitro-proxy
 npx nitro-proxy start
 ```
 
+### 终止
+
+终止 `nitro-proxy` 服务
+
+```shell
+npx nitro-proxy stop
+```
+
 <br />
 
 ## License
