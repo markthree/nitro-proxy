@@ -78,8 +78,8 @@ const main = defineCommand({
 
     const { proxy, outDir, base } = await resolveViteConfig(rootDir);
 
-    // 确保 vite build
-    await ensureViteBuild(rootDir, outDir, args.force);
+    // 确保 build
+    await ensureBuild(rootDir, outDir, args.type, args.force);
 
     // 生成代理路由
     const routeRules = createProxyRouteRules(proxy);
@@ -184,10 +184,18 @@ function createProxyRouteRules(
 }
 
 /**
- * 确保进行 vite build
+ * 确保进行 build
  */
-async function ensureViteBuild(rootDir: string, outDir: string, force = false) {
+async function ensureBuild(
+  rootDir: string,
+  outDir: string,
+  type = detectType(),
+  force = false,
+) {
   const dist = resolve(rootDir, outDir);
+
+  const pkg = type === "ssg" ? "vite-ssg" : "vite";
+  const pkgBuild = `${pkg} build`;
 
   if (await noEmpty(dist)) {
     if (!force) {
@@ -197,19 +205,19 @@ async function ensureViteBuild(rootDir: string, outDir: string, force = false) {
       return;
     }
   } else {
-    logger.warn(`可能没有进行 ${yellow("vite build")} → ${yellow(outDir)}`);
-    const shouldAutoBuild = await confirm(`是否自动 ${green("vite build")}`);
+    logger.warn(`可能没有进行 ${yellow(pkgBuild)} → ${yellow(outDir)}`);
+    const shouldAutoBuild = await confirm(`是否自动 ${green(pkgBuild)}`);
     if (!shouldAutoBuild) {
-      throw new Error(`请先进行 vite build`);
+      throw new Error(`请先进行 ${pkgBuild}`);
     }
   }
 
   const packageJsonFile = resolve(rootDir, "package.json");
   if (!existsSync(packageJsonFile)) {
     logger.warn(
-      `不存在 ${yellow(packageJsonFile)}，开始执行 ${green("npx vite build")}`,
+      `不存在 ${yellow(packageJsonFile)}，开始执行 ${green(`npx ${pkgBuild}`)}`,
     );
-    await npxVitBuild();
+    await npxBuild(pkgBuild);
     return;
   }
 
@@ -226,16 +234,16 @@ async function ensureViteBuild(rootDir: string, outDir: string, force = false) {
           yellow(
             scripts,
           )
-        }，开始执行 ${green("npx vite build")}`,
+        }，开始执行 ${green(`npx ${pkgBuild}`)}`,
       );
-      await npxVitBuild();
+      await npxBuild(pkgBuild);
       return;
     }
 
     const pm = (await detectPackageManager(rootDir)) ?? { name: "npm" };
 
     for (const [scriptKey, scriptValue] of Object.entries(scripts)) {
-      if (scriptValue.includes("vite build")) {
+      if (scriptValue.includes(`${pkgBuild}`)) {
         logger.info(`执行 ${pm.name} run ${scriptKey} → ${green(scriptValue)}`);
         await execa(pm.name, ["run", scriptKey], {
           cwd: rootDir,
@@ -244,6 +252,10 @@ async function ensureViteBuild(rootDir: string, outDir: string, force = false) {
         return;
       }
     }
+
+    throw new TypeError(
+      `未发现 ${pkgBuild} 的脚本 → ${yellow(packageJsonFile)}`,
+    );
   } catch (error) {
     logger.error(error);
     logger.error(
@@ -253,11 +265,11 @@ async function ensureViteBuild(rootDir: string, outDir: string, force = false) {
         )
       }`,
     );
-    await npxVitBuild();
+    await npxBuild(pkgBuild);
   }
 
-  async function npxVitBuild() {
-    await execa("npx", ["vite", "build"], {
+  async function npxBuild(script: string) {
+    await execa("npx", script.split(" "), {
       cwd: rootDir,
       stdio: "inherit",
     });
