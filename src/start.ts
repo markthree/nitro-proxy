@@ -49,7 +49,7 @@ export default defineCommand({
       stdio: "inherit",
     });
     console.log();
-    logger.success(`服务地址 → http://localhost:${process.env.PORT}`);
+    logger.success(`服务地址 → http://localhost:${process.env.NITRO_PORT}`);
 
     process.exit(0);
   },
@@ -59,8 +59,8 @@ export default defineCommand({
  * 重写端口
  */
 function overwritePort(port: string) {
-  process.env.PORT = usePort(port);
-  logger.success(`服务端口 → ${green(process.env.PORT)}`);
+  process.env.NITRO_PORT = usePort(port);
+  logger.success(`服务端口 → ${green(process.env.NITRO_PORT)}`);
 }
 
 function findNitroMetaJson() {
