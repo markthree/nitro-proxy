@@ -1,8 +1,9 @@
 import fkill from "fkill";
 import runscript from "runscript";
-import { logger } from "./logger";
+import { logger as _logger } from "./logger";
 import { defineCommand } from "citty";
 
+const logger = _logger.withTag("stop");
 const isWin = process.platform === "win32";
 const REGEX = isWin ? /^(.*)\s+(\d+)\s*$/ : /^\s*(\d+)\s+(.*)/;
 
