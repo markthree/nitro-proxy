@@ -1,7 +1,7 @@
-import { defineCommand } from "citty";
-import runscript from "runscript";
 import fkill from "fkill";
+import runscript from "runscript";
 import { logger } from "./logger";
+import { defineCommand } from "citty";
 
 const isWin = process.platform === "win32";
 const REGEX = isWin ? /^(.*)\s+(\d+)\s*$/ : /^\s*(\d+)\s+(.*)/;
@@ -62,46 +62,64 @@ export default defineCommand({
       default: "nitro-proxy",
       description: "通过终端名终止",
     },
+    tree: {
+      type: "boolean",
+      default: true,
+      description: "终止进程树",
+    },
   },
   async run({ args }) {
-    if (args.title) {
-      const list = await findNodeProcess((item) => {
-        const [_, title] = item.cmd.match(/--title=(\w+)/) ?? [];
-        return title?.trim() === args.title;
-      });
-
-      if (list.length === 0) {
-        logger.error(`通过终端名没有找到任何进程 title → ${args.title}`);
-        return;
+    if (args.port) {
+      try {
+        await fkill(`:${args.port}`, { force: true, tree: args.tree });
+        logger.success(`通过服务端口终止成功 port → ${args.port}`);
+      } catch (error) {
+        logger.error(`通过服务端口终止失败 port → ${args.port}`);
+        logger.error(error);
+      } finally {
+        process.exit(0);
       }
-
-      await fkill(list.map((item) => Number(item.pid)), { force: true }).catch(
-        (res) => {
-          logger.error(`通过终端名终止失败 title → ${args.title}`);
-          logger.error(res);
-        },
-      );
-      return;
     }
 
     if (args.pid) {
-      await fkill(args.pid, { force: true }).catch((res) => {
+      try {
+        await fkill(`:${args.port}`, { force: true, tree: args.tree });
+        logger.success(`通过进程 ID 终止成功 pid → ${args.pid}`);
+      } catch (error) {
         logger.error(`通过进程 ID 终止 pid → ${args.pid}`);
-        logger.error(res);
-      });
-      return;
+        logger.error(error);
+      } finally {
+        process.exit(0);
+      }
     }
 
-    if (args.port) {
-      await fkill(`:${args.port}`, { force: true }).catch((res) => {
-        logger.error(`通过服务端口终止失败 port → ${args.port}`);
-        logger.error(res);
-      });
-      return;
+    if (args.title) {
+      try {
+        const list = await findNodeProcess((item) => {
+          const [_, title] = item.cmd.match(/--title=([^ ]*)( .*)*/) ?? [];
+          return title?.trim() === args.title;
+        });
+        if (list.length === 0) {
+          throw `通过终端名没有找到任何进程 title → ${args.title}`;
+        }
+
+        if (args.tree) {
+          list.length = 1;
+        }
+
+        await fkill(list.map((item) => Number(item.pid)), {
+          force: true,
+          tree: args.tree,
+        });
+        logger.success(`通过终端名终止成功 title → ${args.title}`);
+      } catch (error) {
+        logger.error(`通过终端名终止失败 title → ${args.title}`);
+        logger.error(error);
+      } finally {
+        process.exit(0);
+      }
     }
-
-    logger.error("没有任何参数可用");
-
+    logger.error("无任何参数可用");
     process.exit(0);
   },
 });

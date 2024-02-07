@@ -16,7 +16,6 @@ import { description, name, version } from "../package.json";
 import { checkNodeVersion, commonArgs, usePort } from "./common";
 
 import { execa } from "execa";
-import { emptyDir } from "fs-extra";
 import { readdir, readFile } from "fs/promises";
 import type { UserConfig } from "vite-layers";
 import { green, red, yellow } from "kolorist";

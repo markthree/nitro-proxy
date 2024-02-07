@@ -14,6 +14,9 @@ dependencies:
   nitropack:
     specifier: ^2.8.1
     version: 2.8.1
+  runscript:
+    specifier: ^1.6.0
+    version: 1.6.0
 
 devDependencies:
   '@types/fs-extra':
@@ -52,9 +55,6 @@ devDependencies:
   pathe:
     specifier: ^1.1.2
     version: 1.1.2
-  runscript:
-    specifier: ^1.6.0
-    version: 1.6.0
   typescript:
     specifier: ^5.3.3
     version: 5.3.3
@@ -2125,7 +2125,7 @@ packages:
 
   /is-class-hotfix@0.0.6:
     resolution: {integrity: sha512-0n+pzCC6ICtVr/WXnN2f03TK/3BfXY7me4cjCAqT8TYXEl0+JBRoqBo94JJHXcyDSLUeWbNX8Fvy5g5RJdAstQ==}
-    dev: true
+    dev: false
 
   /is-core-module@2.13.1:
     resolution: {integrity: sha512-hHrIjvZsftOsvKSn2TRYl63zvxsgE0K+0mYMoH6gD4omR5IWB2KynivBQczo3+wF1cCkjzvptnI9Q0sPU66ilw==}
@@ -2185,7 +2185,7 @@ packages:
       core-util-is: 1.0.3
       is-class-hotfix: 0.0.6
       isstream: 0.1.2
-    dev: true
+    dev: false
 
   /is-wsl@2.2.0:
     resolution: {integrity: sha512-fKzAra0rGJUUBwGBgNkHZuToZcn+TtXHpeCgmkMJMMYx1sQDYaCSyjJBSCa2nH1DGm7s3n1oBnohoVTBaN7Lww==}
@@ -2201,7 +2201,7 @@ packages:
 
   /isstream@0.1.2:
     resolution: {integrity: sha512-Yljz7ffyPbrLpLngrMtZ7NduUgVvi6wG9RJ9IUcyCd59YQ911PBJphODUcbOVbqYfxe1wuYf/LJ8PauMRwsM/g==}
-    dev: true
+    dev: false
 
   /jiti@1.21.0:
     resolution: {integrity: sha512-gFqAIbuKyyso/3G2qhiO2OM6shY6EPP/R0+mkDbyspxKazh8BXDC5FiFsUjlczgdNz/vfra0da2y+aHrusLG/Q==}
@@ -3288,7 +3288,7 @@ packages:
     engines: {node: '>=4.2.3'}
     dependencies:
       is-type-of: 1.4.0
-    dev: true
+    dev: false
 
   /safe-buffer@5.1.2:
     resolution: {integrity: sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==}

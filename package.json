@@ -23,6 +23,7 @@
   ],
   "scripts": {
     "build": "unbuild",
+    "stub": "unbuild --stub",
     "prepublishOnly": "pnpm build",
     "release": "bumpp --commit --push --tag && npm publish"
   },
@@ -43,18 +44,15 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/fs-extra": "^11.0.4",
     "@types/node": "^18.19.14",
     "bumpp": "^9.3.0",
     "citty": "^0.1.5",
     "execa": "^8.0.1",
     "fkill": "^9.0.0",
-    "fs-extra": "^11.2.0",
     "kolorist": "^1.8.0",
     "local-pkg": "^0.5.0",
     "nypm": "^0.3.6",
     "pathe": "^1.1.2",
-    "runscript": "^1.6.0",
     "typescript": "^5.3.3",
     "unbuild": "^2.0.0",
     "vite-layers": "^0.5.1",
@@ -63,6 +61,7 @@
   "dependencies": {
     "consola": "^3.2.3",
     "nitro-public-module": "^0.0.7",
-    "nitropack": "^2.8.1"
+    "nitropack": "^2.8.1",
+    "runscript": "^1.6.0"
   }
 }
