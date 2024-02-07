@@ -19,9 +19,6 @@ dependencies:
     version: 1.6.0
 
 devDependencies:
-  '@types/fs-extra':
-    specifier: ^11.0.4
-    version: 11.0.4
   '@types/node':
     specifier: ^18.19.14
     version: 18.19.14
@@ -37,9 +34,6 @@ devDependencies:
   fkill:
     specifier: ^9.0.0
     version: 9.0.0
-  fs-extra:
-    specifier: ^11.2.0
-    version: 11.2.0
   kolorist:
     specifier: ^1.8.0
     version: 1.8.0
@@ -1000,23 +994,10 @@ packages:
   /@types/estree@1.0.5:
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
 
-  /@types/fs-extra@11.0.4:
-    resolution: {integrity: sha512-yTbItCNreRooED33qjunPthRcSjERP1r4MqCZc7wv0u2sUkzTFp45tgUfS5+r7FrZPdmCCNflLhVSP/o+SemsQ==}
-    dependencies:
-      '@types/jsonfile': 6.1.4
-      '@types/node': 18.19.14
-    dev: true
-
   /@types/http-proxy@1.17.14:
     resolution: {integrity: sha512-SSrD0c1OQzlFX7pGu1eXxSEjemej64aaNPRhhVYUGqXh0BtldAAx37MG8btcumvpgKyZp1F5Gn3JkktdxiFv6w==}
     dependencies:
       '@types/node': 18.19.14
-
-  /@types/jsonfile@6.1.4:
-    resolution: {integrity: sha512-D5qGUYwjvnNNextdU59/+fI+spnwtTFmyQP0h+PfIOSkNfpU6AOICUOkm4i0OnSk+NyjdPJrxCDro0sJsWlRpQ==}
-    dependencies:
-      '@types/node': 18.19.14
-    dev: true
 
   /@types/node@18.19.14:
     resolution: {integrity: sha512-EnQ4Us2rmOS64nHDWr0XqAD8DsO6f3XR6lf9UIIrZQpUzPVdN/oPuEzfDWNHSyXLvoGgjuEm/sPwFGSSs35Wtg==}
