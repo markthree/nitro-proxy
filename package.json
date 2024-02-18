@@ -3,16 +3,10 @@
   "name": "nitro-proxy",
   "description": "前端静态服务，支持自动 api 代理",
   "type": "module",
-  "module": "./dist/index.mjs",
+  "main": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "bin": {
     "nitro-proxy": "dist/cli.mjs"
-  },
-  "exports": {
-    ".": {
-      "module": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
-    }
   },
   "repository": {
     "type": "git",
@@ -44,24 +38,25 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^18.19.14",
+    "@types/node": "^18.19.17",
     "bumpp": "^9.3.0",
-    "citty": "^0.1.5",
+    "citty": "^0.1.6",
+    "defu": "^6.1.4",
     "execa": "^8.0.1",
     "kolorist": "^1.8.0",
     "local-pkg": "^0.5.0",
+    "nitro-port-module": "^0.0.5",
     "nypm": "^0.3.6",
     "pathe": "^1.1.2",
+    "runscript": "^1.6.0",
     "typescript": "^5.3.3",
     "unbuild": "^2.0.0",
-    "vite-layers": "^0.5.1",
-    "nitro-port-module": "^0.0.3",
-    "runscript": "^1.6.0"
+    "vite-layers": "^0.5.1"
   },
   "dependencies": {
     "consola": "^3.2.3",
-    "nitro-public-module": "^0.0.7",
-    "nitropack": "^2.8.1",
-    "fkill": "^9.0.0"
+    "fkill": "^9.0.0",
+    "nitro-public-module": "^0.0.8",
+    "nitropack": "^2.8.1"
   }
 }

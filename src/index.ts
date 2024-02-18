@@ -4,6 +4,7 @@ import {
   build,
   copyPublicAssets,
   createNitro,
+  loadOptions,
   type NitroConfig,
   prepare,
 } from "nitropack";
@@ -15,6 +16,7 @@ import { detectPackageManager } from "nypm";
 import { description, name, version } from "../package.json";
 import { checkNodeVersion, commonArgs, usePort } from "./common";
 
+import { defu } from "defu";
 import { execa } from "execa";
 import { readdir, readFile } from "fs/promises";
 import type { UserConfig } from "vite-layers";
@@ -84,8 +86,11 @@ const main = defineCommand({
     // 生成代理路由
     const routeRules = createProxyRouteRules(proxy);
 
+    // 加载 nitro.config.* 的配置
+    const options = await loadOptions();
+
     // 生成 nitro 服务
-    const nitro = await createNitro({
+    const nitro = await createNitro(defu(options, {
       rootDir,
       dev: false,
       baseURL: base,
@@ -111,7 +116,7 @@ const main = defineCommand({
           preset: args.type as "spa" | "ssg",
         }),
       ],
-    });
+    }));
     await prepare(nitro);
     await copyPublicAssets(nitro);
     await build(nitro);
