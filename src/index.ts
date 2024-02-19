@@ -1,15 +1,15 @@
+import { join } from "path";
 import { defineCommand, runMain } from "citty";
 import { existsSync } from "fs";
 import {
   build,
   copyPublicAssets,
   createNitro,
-  loadOptions,
   type NitroConfig,
   prepare,
 } from "nitropack";
 import { resolve } from "pathe";
-import { Layers } from "vite-layers";
+import { Layers, load } from "vite-layers";
 
 import { confirm, logger } from "./logger";
 import { detectPackageManager } from "nypm";
@@ -18,13 +18,42 @@ import { checkNodeVersion, commonArgs, usePort } from "./common";
 
 import { defu } from "defu";
 import { execa } from "execa";
-import { readdir, readFile } from "fs/promises";
+import { lstat, readdir, readFile } from "fs/promises";
 import type { UserConfig } from "vite-layers";
 import { green, red, yellow } from "kolorist";
 import nitroPort from "nitro-port-module";
 import nitroPublic from "nitro-public-module";
 import { isPackageExists } from "local-pkg";
 export { defineNitroConfig } from "nitropack/config";
+
+export const DEFAULT_CONFIG_FILES = [
+  "nitro.config.js",
+  "nitro.config.mjs",
+  "nitro.config.ts",
+  "nitro.config.cjs",
+  "nitro.config.mts",
+  "nitro.config.cts",
+];
+
+async function isFile(path: string) {
+  try {
+    const stat = await lstat(path);
+    return stat.isFile();
+  } catch (error) {
+    return false;
+  }
+}
+export async function detectConfigFile(base: string) {
+  if (await isFile(base)) {
+    return base;
+  }
+  for (const filename of DEFAULT_CONFIG_FILES) {
+    const filePath = join(base, filename);
+    if (existsSync(filePath)) {
+      return filePath;
+    }
+  }
+}
 
 const main = defineCommand({
   meta: {
@@ -87,10 +116,10 @@ const main = defineCommand({
     const routeRules = createProxyRouteRules(proxy);
 
     // 加载 nitro.config.* 的配置
-    const options = await loadOptions();
+    const configFile = await detectConfigFile(rootDir);
+    const options = configFile ? await load(configFile) : {};
 
-    // 生成 nitro 服务
-    const nitro = await createNitro(defu(options, {
+    const config = defu(options, {
       rootDir,
       dev: false,
       baseURL: base,
@@ -116,7 +145,10 @@ const main = defineCommand({
           preset: args.type as "spa" | "ssg",
         }),
       ],
-    }));
+    });
+
+    // 生成 nitro 服务
+    const nitro = await createNitro(config);
     await prepare(nitro);
     await copyPublicAssets(nitro);
     await build(nitro);
