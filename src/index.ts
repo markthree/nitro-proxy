@@ -1,4 +1,3 @@
-import { join } from "path";
 import { defineCommand, runMain } from "citty";
 import { existsSync } from "fs";
 import {
@@ -8,7 +7,7 @@ import {
   type NitroConfig,
   prepare,
 } from "nitropack";
-import { resolve } from "pathe";
+import { join, resolve } from "pathe";
 import { Layers, load } from "vite-layers";
 
 import { confirm, logger } from "./logger";

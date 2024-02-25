@@ -14,6 +14,9 @@ dependencies:
   fkill:
     specifier: ^9.0.0
     version: 9.0.0
+  nitro-port-module:
+    specifier: ^0.1.2
+    version: 0.1.2(nitropack@2.8.1)
   nitro-public-module:
     specifier: ^0.0.8
     version: 0.0.8(nitropack@2.8.1)
@@ -49,6 +52,9 @@ devDependencies:
   pid-port:
     specifier: ^1.0.0
     version: 1.0.0
+  std-env:
+    specifier: ^3.7.0
+    version: 3.7.0
   typescript:
     specifier: ^5.3.3
     version: 5.3.3
@@ -2535,6 +2541,14 @@ packages:
     hasBin: true
     dev: true
 
+  /nitro-port-module@0.1.2(nitropack@2.8.1):
+    resolution: {integrity: sha512-5UJjIzsbpwgwRlNnGIzXI0QtT64dQMzSLq2n+KjnD7qNhPvtB5DmV5O0ZZZoVGWka0nK2LHw90S1r4J5bpueKQ==}
+    peerDependencies:
+      nitropack: '>=2.0.0'
+    dependencies:
+      nitropack: 2.8.1
+    dev: false
+
   /nitro-public-module@0.0.8(nitropack@2.8.1):
     resolution: {integrity: sha512-CTvYPw4YXSpSnWbfxEfTQ0+d+Z5Z5+kCbYg7tlIl/1Qafow5zUswdDNXxkcJQeZjdmbgzpmIQFGJP6l9EDLYRg==}
     peerDependencies:
@@ -3487,7 +3501,6 @@ packages:
 
   /std-env@3.7.0:
     resolution: {integrity: sha512-JPbdCEQLj1w5GilpiHAx3qJvFndqybBysA3qUOnznweH4QbNYUsW/ea8QzSrnh0vNsezMMw5bcVool8lM0gwzg==}
-    dev: false
 
   /streamx@2.16.1:
     resolution: {integrity: sha512-m9QYj6WygWyWa3H1YY69amr4nVgy61xfjys7xO7kviL5rfIEc2naf+ewFiOA+aEJD7y0JO3h2GoiUv4TDwEGzQ==}

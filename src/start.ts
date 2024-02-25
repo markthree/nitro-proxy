@@ -5,7 +5,7 @@ import { readFile } from "fs/promises";
 import { dirname, resolve } from "pathe";
 import { logger as _logger } from "./logger";
 import { green, red } from "kolorist";
-import { usePort } from "./common";
+import { silentExeca, usePort } from "./common";
 
 const logger = _logger.withTag("start");
 
@@ -50,11 +50,15 @@ export default defineCommand({
     const [runtime, ...commands] = preview.split(" ");
     // 添加 title 标记，后续终止时需要用到
     commands.push("--title=nitro-proxy");
-    await execa(runtime, commands, {
-      cwd,
-      detached: args.silent,
-      stdio: args.silent ? "ignore" : "inherit",
-    });
+    if (args.silent) {
+      silentExeca({ cwd, commands, file: runtime });
+    } else {
+      await execa(runtime, commands, {
+        cwd,
+        stdio: "inherit",
+      });
+    }
+
     console.log();
     logger.success(`服务地址 → http://localhost:${process.env.NITRO_PORT}`);
 

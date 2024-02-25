@@ -1,6 +1,7 @@
 import { execa } from "execa";
 import { resolve } from "pathe";
 import { green } from "kolorist";
+import { silentExeca } from "./common";
 import { defineCommand } from "citty";
 import { logger as _logger } from "./logger";
 
@@ -29,11 +30,16 @@ export default defineCommand({
     const cwd = resolve((args.dir || args._dir || ".") as string);
     logger.success(`cwd → ${green(cwd)}`);
     const commands = args.commands.split(",") || [];
-    await execa(commands.shift()!, commands, {
-      cwd,
-      detached: args.silent,
-      stdio: args.silent ? "ignore" : "inherit",
-    });
+
+    const file = commands.shift()!;
+    if (args.silent) {
+      silentExeca({ cwd, file, commands });
+    } else {
+      await execa(file, commands, {
+        cwd,
+        stdio: "inherit",
+      });
+    }
 
     process.exit(0);
   },

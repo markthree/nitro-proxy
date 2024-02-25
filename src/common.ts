@@ -1,8 +1,11 @@
-import { $ } from "execa";
+import { $, execa } from "execa";
 import { version } from "process";
 import type { ArgsDef } from "citty";
 import { logger } from "./logger";
 import { green } from "kolorist";
+import { dirname, resolve } from "pathe";
+import { fileURLToPath } from "url";
+import { isWindows } from "std-env";
 
 export const commonArgs = <ArgsDef> {
   dir: {
@@ -79,4 +82,44 @@ export async function findNodeProcessWithTitle(title: string) {
     return _title?.trim() === title;
   });
   return list;
+}
+
+interface SilentExecaOptions {
+  cwd?: string;
+  file: string;
+  commands?: string[];
+}
+
+export function silentExeca(options: SilentExecaOptions) {
+  const { cwd = process.cwd(), file, commands = [] } = options;
+  if (isWindows) {
+    const scriptsDir = findScriptsDir();
+    const cmd = resolve(scriptsDir, "cmd.mjs");
+    const child_process = execa("node", [cmd, file, ...commands], {
+      cwd,
+      stdio: "ignore",
+      detached: true,
+      windowsHide: true,
+    });
+    child_process.unref();
+    return;
+  }
+
+  const child_process = execa(file, commands, {
+    cwd,
+    stdio: "ignore",
+    detached: true,
+    windowsHide: true,
+  });
+
+  child_process.unref();
+  return;
+}
+
+export function findScriptsDir() {
+  let _dirname = dirname(fileURLToPath(import.meta.url));
+  while (!_dirname.endsWith("dist")) {
+    _dirname = dirname(_dirname);
+  }
+  return _dirname;
 }
