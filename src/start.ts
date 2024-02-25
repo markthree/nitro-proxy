@@ -20,6 +20,12 @@ export default defineCommand({
       required: false,
       description: "服务端口",
     },
+    silent: {
+      type: "boolean",
+      required: false,
+      default: false,
+      description: "后台运行",
+    },
   },
   async run({ args }) {
     if (args.port !== undefined) {
@@ -47,6 +53,7 @@ export default defineCommand({
     await execa(runtime, commands, {
       cwd,
       stdio: "inherit",
+      detached: args.silent,
     });
     console.log();
     logger.success(`服务地址 → http://localhost:${process.env.NITRO_PORT}`);
