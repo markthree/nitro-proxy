@@ -13,7 +13,8 @@
     "url": "git+https://github.com/markthree/nitro-proxy.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "scripts"
   ],
   "scripts": {
     "build": "unbuild",
@@ -42,14 +43,11 @@
     "bumpp": "^9.3.0",
     "citty": "^0.1.6",
     "defu": "^6.1.4",
-    "execa": "^8.0.1",
     "kolorist": "^1.8.0",
     "local-pkg": "^0.5.0",
-    "nitro-port-module": "^0.0.5",
     "nypm": "^0.3.6",
     "pathe": "^1.1.2",
     "pid-port": "^1.0.0",
-    "runscript": "^1.6.0",
     "typescript": "^5.3.3",
     "unbuild": "^2.0.0",
     "vite-layers": "^0.5.1"
@@ -57,6 +55,7 @@
   "dependencies": {
     "consola": "^3.2.3",
     "fkill": "^9.0.0",
+    "execa": "^8.0.1",
     "nitro-public-module": "^0.0.8",
     "nitropack": "^2.8.1"
   }

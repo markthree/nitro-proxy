@@ -1,4 +1,4 @@
-import runscript from "runscript";
+import { $ } from "execa";
 import { version } from "process";
 import type { ArgsDef } from "citty";
 import { logger } from "./logger";
@@ -48,7 +48,8 @@ export async function findNodeProcess(filterFn: FilterFn) {
     ? "wmic Path win32_process Where \"Name = 'node.exe'\" Get CommandLine,ProcessId"
     // command, cmd are alias of args, not POSIX standard, so we use args
     : 'ps -wweo "pid,args"';
-  const stdio = await runscript(command, { stdio: "pipe" });
+  const stdio = await $({ stdio: "pipe" })`${command}`;
+
   if (!stdio || !stdio.stdout) {
     return [];
   }
