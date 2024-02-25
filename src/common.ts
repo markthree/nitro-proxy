@@ -3,7 +3,7 @@ import { version } from "process";
 import type { ArgsDef } from "citty";
 import { logger } from "./logger";
 import { green } from "kolorist";
-import { dirname, resolve } from "pathe";
+import { dirname, join, resolve } from "pathe";
 import { fileURLToPath } from "url";
 import { isWindows } from "std-env";
 
@@ -121,5 +121,5 @@ export function findScriptsDir() {
   while (!_dirname.endsWith("dist")) {
     _dirname = dirname(_dirname);
   }
-  return _dirname;
+  return join(dirname(_dirname), "scripts");
 }
