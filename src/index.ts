@@ -65,6 +65,7 @@ const main = defineCommand({
     stop: () => import("./stop").then((r) => r.default),
     start: () => import("./start").then((r) => r.default),
     find: () => import("./find").then((r) => r.default),
+    "start-cmd": () => import("./start-cmd").then((r) => r.default),
   },
   args: {
     ...commonArgs,
