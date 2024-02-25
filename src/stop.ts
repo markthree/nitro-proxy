@@ -1,46 +1,9 @@
 import fkill from "fkill";
-import runscript from "runscript";
-import { logger as _logger } from "./logger";
 import { defineCommand } from "citty";
+import { logger as _logger } from "./logger";
+import { findNodeProcessWithTitle } from "./common";
 
 const logger = _logger.withTag("stop");
-const isWin = process.platform === "win32";
-const REGEX = isWin ? /^(.*)\s+(\d+)\s*$/ : /^\s*(\d+)\s+(.*)/;
-
-interface ProcessItem {
-  pid: string;
-  cmd: string;
-}
-
-type FilterFn = (item: ProcessItem) => boolean;
-
-async function findNodeProcess(filterFn: FilterFn) {
-  const command = isWin
-    ? "wmic Path win32_process Where \"Name = 'node.exe'\" Get CommandLine,ProcessId"
-    // command, cmd are alias of args, not POSIX standard, so we use args
-    : 'ps -wweo "pid,args"';
-  const stdio = await runscript(command, { stdio: "pipe" });
-  if (!stdio || !stdio.stdout) {
-    return [];
-  }
-  const processList = stdio.stdout.toString().split("\n")
-    .reduce((arr, line) => {
-      if (!!line && !line.includes("/bin/sh") && line.includes("node")) {
-        const m = line.match(REGEX);
-        /* istanbul ignore else */
-        if (m) {
-          const item = isWin
-            ? { pid: m[2], cmd: m[1] }
-            : { pid: m[1], cmd: m[2] };
-          if (!filterFn || filterFn(item)) {
-            arr.push(item);
-          }
-        }
-      }
-      return arr;
-    }, [] as ProcessItem[]);
-  return processList;
-}
 
 export default defineCommand({
   meta: {
@@ -84,7 +47,7 @@ export default defineCommand({
 
     if (args.pid) {
       try {
-        await fkill(`:${args.port}`, { force: true, tree: args.tree });
+        await fkill(parseInt(args.pid), { force: true, tree: args.tree });
         logger.success(`通过进程 ID 终止成功 pid → ${args.pid}`);
       } catch (error) {
         logger.error(`通过进程 ID 终止 pid → ${args.pid}`);
@@ -96,10 +59,7 @@ export default defineCommand({
 
     if (args.title) {
       try {
-        const list = await findNodeProcess((item) => {
-          const [_, title] = item.cmd.match(/--title=([^ ]*)( .*)*/) ?? [];
-          return title?.trim() === args.title;
-        });
+        const list = await findNodeProcessWithTitle(args.title);
         if (list.length === 0) {
           throw `通过终端名没有找到任何进程 title → ${args.title}`;
         }

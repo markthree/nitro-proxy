@@ -1,3 +1,4 @@
+import runscript from "runscript";
 import { version } from "process";
 import type { ArgsDef } from "citty";
 import { logger } from "./logger";
@@ -30,4 +31,51 @@ export function usePort(port: string) {
     throw new TypeError("服务端口号 port 必须是数字字符串");
   }
   return String(parseInt(port, 10));
+}
+
+const isWin = process.platform === "win32";
+const REGEX = isWin ? /^(.*)\s+(\d+)\s*$/ : /^\s*(\d+)\s+(.*)/;
+
+interface ProcessItem {
+  pid: string;
+  cmd: string;
+}
+
+type FilterFn = (item: ProcessItem) => boolean;
+
+export async function findNodeProcess(filterFn: FilterFn) {
+  const command = isWin
+    ? "wmic Path win32_process Where \"Name = 'node.exe'\" Get CommandLine,ProcessId"
+    // command, cmd are alias of args, not POSIX standard, so we use args
+    : 'ps -wweo "pid,args"';
+  const stdio = await runscript(command, { stdio: "pipe" });
+  if (!stdio || !stdio.stdout) {
+    return [];
+  }
+  const processList = stdio.stdout.toString().split("\n")
+    .reduce((arr, line) => {
+      if (!!line && !line.includes("/bin/sh") && line.includes("node")) {
+        const m = line.match(REGEX);
+        /* istanbul ignore else */
+        if (m) {
+          const item = isWin
+            ? { pid: m[2], cmd: m[1] }
+            : { pid: m[1], cmd: m[2] };
+          if (!filterFn || filterFn(item)) {
+            arr.push(item);
+          }
+        }
+      }
+      return arr;
+    }, [] as ProcessItem[]);
+  return processList;
+}
+
+export async function findNodeProcessWithTitle(title: string) {
+  const reg = /--title=([^ ]*)( .*)*/;
+  const list = await findNodeProcess((item) => {
+    const [_, _title] = item.cmd.match(reg) ?? [];
+    return _title?.trim() === title;
+  });
+  return list;
 }

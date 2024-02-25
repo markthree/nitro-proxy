@@ -49,6 +49,9 @@ devDependencies:
   pathe:
     specifier: ^1.1.2
     version: 1.1.2
+  pid-port:
+    specifier: ^1.0.0
+    version: 1.0.0
   runscript:
     specifier: ^1.6.0
     version: 1.6.0
@@ -2703,7 +2706,6 @@ packages:
     engines: {node: '>=18'}
     dependencies:
       execa: 8.0.1
-    dev: false
 
   /pkg-types@1.0.3:
     resolution: {integrity: sha512-nN7pYi0AQqJnoLPC9eHFQ8AcyaixBUOwvqc5TDnIKCMEE6I0y8P7OKA7fPexsXGCGxQDl/cmrLAp26LhcwxZ4A==}

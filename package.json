@@ -48,6 +48,7 @@
     "nitro-port-module": "^0.0.5",
     "nypm": "^0.3.6",
     "pathe": "^1.1.2",
+    "pid-port": "^1.0.0",
     "runscript": "^1.6.0",
     "typescript": "^5.3.3",
     "unbuild": "^2.0.0",
