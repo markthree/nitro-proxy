@@ -52,8 +52,8 @@ export default defineCommand({
     commands.push("--title=nitro-proxy");
     await execa(runtime, commands, {
       cwd,
-      stdio: "inherit",
       detached: args.silent,
+      stdio: args.silent ? "ignore" : "inherit",
     });
     console.log();
     logger.success(`服务地址 → http://localhost:${process.env.NITRO_PORT}`);

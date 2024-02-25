@@ -31,9 +31,10 @@ export default defineCommand({
     const commands = args.commands.split(",") || [];
     await execa(commands.shift()!, commands, {
       cwd,
-      stdio: "inherit",
       detached: args.silent,
+      stdio: args.silent ? "ignore" : "inherit",
     });
+
     process.exit(0);
   },
 });
